@@ -1,5 +1,5 @@
 /*****************************************************************************************
-    NESPi NDEF Reader/Power Controlller v0.1  [mike.g|jun2016] Modified by Ben Myers v0.5
+    NESPi NDEF Reader/Power Controlller v0.1  [mike.g|jun2016] Modified by Ben Myers v0.6
  *****************************************************************************************/
 //#include <avr/interrupt.h>
 //#include <avr/sleep.h>
@@ -30,7 +30,7 @@ boolean piLast;               // last value of piPin
 CRGB leds[NUM_LEDS];    // LED array
 boolean ledEnable;      // led enable state
  
-String piMsg;           // String to hold the serial data from the Pi
+String piMsg;           // String to hold the Serial1 data from the Pi
 long resetTime;         // used to check if the Pi was reset or shutdown
 
 PN532_I2C pn532_i2c(Wire);
@@ -45,11 +45,11 @@ boolean nfcWasAsleep = 0;                 // NFC reader sleep value
  *****************************************************************************************/
 void setup() {
  
-  // start the serial port
-  Serial.begin(9600);
+  // start the Serial1 port
+  Serial1.begin(9600);
 
-//  while (!Serial) {
-//    ; // wait for serial port to connect. Needed for native USB port only
+//  while (!Serial11) {
+//    ; // wait for Serial1 port to connect. Needed for native USB port only
 //  }
  
   // start the NFC reader in power-down state by driving the PN532 RSTPDN pin LOW
@@ -98,14 +98,14 @@ void loop() {
  
   // Get button event
   int b = checkButton();
-  //serial.println(b);
+  //Serial1.println(b);
  
   if (b == 1) nesReset();             // single button click
   if (b == 2) ledToggle();            // double-click
   if (b == 3) powerOn();              // press and hold
   if (b == 4) shutdownPi();           // press and long-hold
  
- //Serial.print("Pi Pin "); Serial.println(digitalRead(piPin));
+ //Serial1.print("Pi Pin "); Serial1.println(digitalRead(piPin));
  
  
   // poll the piPin to detect a software shutdown of the Raspberry Pi
@@ -120,7 +120,7 @@ void loop() {
  
  if (bootState == 1){
     scanTag();
-    //Serial.println("Ran Scan Tag");
+    //Serial1.println("Ran Scan Tag");
   }
   readPi();
   
@@ -134,7 +134,7 @@ void loop() {
 void nesReset() {
  
   // send 'reset' to the Pi to trigger a reset of the emulator
-  Serial.print("reset"); Serial.print(", "); Serial.println(", ");
+  Serial1.print("reset"); Serial1.print(", "); Serial1.println(", ");
  
 }
 /*****************************************************************************************
@@ -165,7 +165,7 @@ void powerOn() {
     nfcWasAsleep = 1;                // toggle the bit so we only do this once
     
   if (bootState == 0) {
- // Serial.println("In Poweron");
+ // Serial1.println("In Poweron");
   // flash the RGB Led twice in white
     leds[0] = CRGB::White; FastLED.show(); delay(100);
     leds[0] = CRGB::Black; FastLED.show(); delay(100);
@@ -176,7 +176,7 @@ void powerOn() {
     
     digitalWrite(powerPin, LOW);
 
-     Serial.println("Mosfet On");
+     Serial1.println("Mosfet On");
     // turn on the LED indicator
     digitalWrite(ledPin, HIGH);
  
@@ -221,7 +221,7 @@ void powerOff() {
 void shutdownPi() {
  
   // send shutdown message to Raspberry Pi
-  Serial.print("shutdown"); Serial.print(", "); Serial.println(", ");
+  Serial1.print("shutdown"); Serial1.print(", "); Serial1.println(", ");
  
   // flash the RGB Led twice in red
   leds[0] = CRGB::Red; FastLED.show(); delay(100);
@@ -229,7 +229,7 @@ void shutdownPi() {
   leds[0] = CRGB::Red; FastLED.show(); delay(100);
   leds[0] = CRGB::Black; FastLED.show();
  
-  // could do a check/response over serial here?(can't be bothered)
+  // could do a check/response over Serial1 here?(can't be bothered)
   // wait for the RPi signal to go LOW before cutting the power
   while (digitalRead(piPin) == 1) {
     // pulse the LED a bit faster during shutdown
@@ -250,8 +250,8 @@ void scanTag () {
   {
     if (tagToggle) {
       NfcTag tag = nfc.read();
-      // Serial.println(tag.getTagType());
-      Serial.print(tag.getUidString()); Serial.print(", ");    // print the UID to serial monitor
+      // Serial1.println(tag.getTagType());
+      Serial1.print(tag.getUidString()); Serial1.print(", ");    // print the UID to Serial1 monitor
       if (tag.hasNdefMessage()) {
         NdefMessage message = tag.getNdefMessage();
         // get the first 2 records of the tag
@@ -267,9 +267,9 @@ void scanTag () {
           for (int c = 3; c < payloadLength; c++) {
             payloadAsString += (char)payload[c];
           }
-          Serial.print(payloadAsString); Serial.print(", ");    // print the NDEF record
+          Serial1.print(payloadAsString); Serial1.print(", ");    // print the NDEF record
         }
-        Serial.println(" ");
+        Serial1.println(" ");
         tagToggle = 0;
       }
     }
@@ -280,7 +280,7 @@ void scanTag () {
       leds[0] = CRGB::OrangeRed; FastLED.show();
     }
     if (tagToggle == 0) {
-      Serial.print("cart_eject"); Serial.print(", "); Serial.println(", ");
+      Serial1.print("cart_eject"); Serial1.print(", "); Serial1.println(", ");
       tagToggle = 1;
     }
   }
@@ -289,31 +289,16 @@ void scanTag () {
  *****************************************************************************************/
 void readPi() {
 
-  TXLED0;
-        TXLED1;
-         TXLED0;
-          TXLED1;
           
  
-  // read data from the serial port into a string to check for messages
-  if (Serial.available()) {
-    piMsg = Serial.readString();
+  // read data from the Serial1 port into a string to check for messages
+  if (Serial1.available()) {
+    piMsg = Serial1.readString();
 
     
     // toggle the tag reader when prompted by the RPi... lets us start with a cart insterted
     if (piMsg == "ready") {
-       TXLED0;
-        TXLED1;
-         TXLED0;
-          TXLED1;
-          TXLED0;
-        TXLED1;
-         TXLED0;
-          TXLED1;
-          TXLED0;
-        TXLED1;
-         TXLED0;
-          TXLED1;
+
       tagToggle = true;
     }
  
