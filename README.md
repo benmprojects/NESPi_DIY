@@ -6,7 +6,7 @@ This is the DIY guide for NESPi by Daftmike - http://www.daftmike.com/2016/07/NE
 
 Daftmike has been busy putting together his electronic kits and hasn't had time to create the DIY guide and schematic.
 
-The schematic is not yet complete (missing front LED and RGB LED and others) I will be updating this.\
+The schematic is not yet complete (RGB LED and serial issue) I will be updating this.
 Any problems or ideas please post in the Issues section.
 
 I will also post the BOM below once I have time.
