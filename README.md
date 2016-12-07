@@ -1,6 +1,6 @@
 # NESPi_DIY
 
-V 0.5
+V 0.6
 
 This is the DIY guide for NESPi by Daftmike - http://www.daftmike.com/2016/07/NESPi.html . This guide below is in no way endorsed by Daftmike.
 
