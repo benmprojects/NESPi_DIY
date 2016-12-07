@@ -1,10 +1,10 @@
-/****************************************************************
-    NESPi NDEF Reader/Power Controlller v0.1  [mike.g|jun2016]
- ****************************************************************/
-#include <avr/interrupt.h>
-#include <avr/sleep.h>
+/*****************************************************************************************
+    NESPi NDEF Reader/Power Controlller v0.1  [mike.g|jun2016] Modified by Ben Myers v0.5
+ *****************************************************************************************/
+//#include <avr/interrupt.h>
+//#include <avr/sleep.h>
 #include <math.h>
-#include <SPI.h>
+//#include <SPI.h>
 //#include <PN532_SPI.h>
 #include <PN532.h>
 #include <NfcAdapter.h>
@@ -79,7 +79,7 @@ void setup() {
  // for (int i = 6; i < 10; i++)pinMode(i, INPUT_PULLUP);
  
   // after setting up go to sleep to save power at idle
-  go_to_sleep();
+  //wakeUp();
  
 }
 /*****************************************************************************************
@@ -87,25 +87,26 @@ void setup() {
 void loop() {
  
   // restart the nfc reader after waking from sleep
-  if (nfcWasAsleep) {
-    digitalWrite(nfcPin, HIGH);      // set RSTPDN HIGH to enable NFC reader
-    pinMode(nfcPin, INPUT_PULLUP);   // set input pullup resistor to limit current
-    delay(100);                      // wait for NFC reader to settle
-    nfc.begin();                     // initialise NFC reader
-    nfcWasAsleep = 0;                // toggle the bit so we only do this once
-  }
+ // if (nfcWasAsleep) {
+ //   digitalWrite(nfcPin, HIGH);      // set RSTPDN HIGH to enable NFC reader
+  //  pinMode(nfcPin, INPUT_PULLUP);   // set input pullup resistor to limit current
+  //  delay(100);                      // wait for NFC reader to settle
+   // nfc.begin();                     // initialise NFC reader
+   // nfcWasAsleep = 0;                // toggle the bit so we only do this once
+//  }*/
  
  
   // Get button event
   int b = checkButton();
-  //Serial.println(b);
+  //serial.println(b);
  
   if (b == 1) nesReset();             // single button click
   if (b == 2) ledToggle();            // double-click
   if (b == 3) powerOn();              // press and hold
   if (b == 4) shutdownPi();           // press and long-hold
  
-
+ //Serial.print("Pi Pin "); Serial.println(digitalRead(piPin));
+ 
  
   // poll the piPin to detect a software shutdown of the Raspberry Pi
   // if piPin goes from HIGH to LOW, then the RPi has inititated a shut-down or reboot
@@ -117,7 +118,10 @@ void loop() {
   // if piPin is still low after 12 seconds then the Pi has shut down not reset, and we can cut the power
   if (millis() - resetTime > 12000) if (digitalRead(piPin) == 0 && bootState == 1) powerOff();
  
-  scanTag();
+ if (bootState == 1){
+    scanTag();
+    //Serial.println("Ran Scan Tag");
+  }
   readPi();
   
  
@@ -152,7 +156,14 @@ void ledToggle() {
 /*****************************************************************************************
  *****************************************************************************************/
 void powerOn() {
- 
+
+
+    digitalWrite(nfcPin, HIGH);      // set RSTPDN HIGH to enable NFC reader
+    pinMode(nfcPin, INPUT_PULLUP);   // set input pullup resistor to limit current
+    delay(100);                      // wait for NFC reader to settle
+    nfc.begin();                     // initialise NFC reader
+    nfcWasAsleep = 1;                // toggle the bit so we only do this once
+    
   if (bootState == 0) {
  // Serial.println("In Poweron");
   // flash the RGB Led twice in white
@@ -202,7 +213,7 @@ void powerOff() {
   pinMode(nfcPin, OUTPUT);
   digitalWrite(nfcPin, LOW);      // put NFC reader into shutdown state
   digitalWrite(ledPin, LOW);      // turn off indicator LED
-  go_to_sleep();
+ // go_to_sleep();
  
 }
 /*****************************************************************************************
@@ -277,13 +288,32 @@ void scanTag () {
 /*****************************************************************************************
  *****************************************************************************************/
 void readPi() {
+
+  TXLED0;
+        TXLED1;
+         TXLED0;
+          TXLED1;
+          
  
   // read data from the serial port into a string to check for messages
   if (Serial.available()) {
     piMsg = Serial.readString();
- 
+
+    
     // toggle the tag reader when prompted by the RPi... lets us start with a cart insterted
     if (piMsg == "ready") {
+       TXLED0;
+        TXLED1;
+         TXLED0;
+          TXLED1;
+          TXLED0;
+        TXLED1;
+         TXLED0;
+          TXLED1;
+          TXLED0;
+        TXLED1;
+         TXLED0;
+          TXLED1;
       tagToggle = true;
     }
  
@@ -298,25 +328,26 @@ void readPi() {
 }
 /*****************************************************************************************
  *****************************************************************************************/
-void go_to_sleep() {
+//void go_to_sleep() {
  
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);    // set the sleep mode
-  sleep_enable();                         // enable sleep bit so sleep is possible
-  attachInterrupt(0, wakeUp, LOW);        // attach pin 2 interrupt to wake up from sleep
-  delay(100);
-  sleep_mode();                           // go to sleep
-  sleep_disable();                        // wake up here
-  detachInterrupt(0);                     // detach the interrupt after waking up
-}
+ // set_sleep_mode(SLEEP_MODE_PWR_DOWN);    // set the sleep mode
+ // sleep_enable();                         // enable sleep bit so sleep is possible
+//  attachInterrupt(0, wakeUp, LOW);        // attach pin 2 interrupt to wake up from sleep
+//  delay(100);
+ // sleep_mode();                           // go to sleep
+ // sleep_disable();                        // wake up here
+ // detachInterrupt(0);                     // detach the interrupt after waking up
+//\}
  
-void wakeUp() {
+/*void wakeUp() {
  
   // set toggle bits to let the main program know we just woke up
   nfcWasAsleep = 1;
   tagToggle = 1;
   buttonWasAsleep = 1;
   bootState = 0;
-}
+}*/
+
 /*****************************************************************************************
  *****************************************************************************************/
 /*=========================================================================================
