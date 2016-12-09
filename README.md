@@ -14,8 +14,8 @@ BOM. (Not complete)
 
 - 1 x Breadboard
 - 1 x SUP53P06 Mosfet
-- 1 x 10k 1/2watt Resistor
-- 3 x 150r 1/2watt Resistor
+- 1 x 10k 1/4watt Resistor
+- 3 x 150r 1/4watt Resistor
 - 2 x 5 way connector
 - 1 x Logic level converter
 - 1 x 2.5 female header
