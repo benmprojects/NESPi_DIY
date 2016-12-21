@@ -213,7 +213,7 @@ def button_on():
 						 "cannonball", "tyrquake", "ioquake3", "residualvm", "xrick", "sdlpop", "uqm", "stratagus",
 						 "wolf4sdl", "solarus", "emulationstation", "emulationstatio"]
 			killtasks(procnames)
-			subprocess.call("sudo openvt -c 1 -s -f " + emulatorpath + rompath + "&", shell=True)
+			subprocess.call(emulatorpath + rompath + "&", shell=True)
 			subprocess.call("sudo chown pi -R /dev/shm", shell=True)  # ES needs permission as 'pi' to access this later
 			time.sleep(1)
 			subprocess.call("sudo chown pi -R /home/pi/NESPi/romdetails.txt", shell=True)
@@ -235,8 +235,9 @@ def button_on():
 						 "simcoupe", "scummvm", "snes9x", "pisnes", "frotz", "fbzx", "fuse", "gemrb", "cgenesis", "zdoom",
 						 "eduke32", "lincity", "love", "alephone", "micropolis", "openbor", "openttd", "opentyrian",
 						 "cannonball", "tyrquake", "ioquake3", "residualvm", "xrick", "sdlpop", "uqm", "stratagus",
-						 "wolf4sdl", "solarus"]
+						 "wolf4sdl", "solarus", "emulationstation", "emulationstatio"]
 			killtasks(procnames)
+			subprocess.call("emulationstation" + "&", shell=True)
 
 
 #############################################################################################

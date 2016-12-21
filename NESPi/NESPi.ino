@@ -14,8 +14,8 @@
 #include <PN532_I2C.h>  //
 #include <Wire.h>  //
  
-const int buttonPin = 7;       // input pin for the NES 'reset' button
-const int powerPin = A9;       // output to MOSFET
+const int buttonPin = 4;       // input pin for the NES 'reset' button
+const int powerPin = A2;       // output to MOSFET
 const int piPin = A3;          // input for RPi status
 const int ledPin = 5;          // front LED indicator
 
